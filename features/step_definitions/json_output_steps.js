@@ -73,12 +73,28 @@ defineSupportCode(({ Then }) => {
     expect(step.result.status).to.eql(status)
   })
 
+  Then(/^the step "([^"]*)" has reason "([^"]*)"$/, function(name, reason) {
+    const step = findStep({
+      features: this.lastRun.jsonOutput,
+      stepPredicate: ['name', name]
+    })
+    expect(step.result.reason).to.eql(reason)
+  })
+
   Then(/^the "([^"]*)" hook has status "([^"]*)"$/, function(keyword, status) {
     const step = findStep({
       features: this.lastRun.jsonOutput,
       stepPredicate: ['keyword', keyword]
     })
     expect(step.result.status).to.eql(status)
+  })
+
+  Then(/^the "([^"]*)" hook has reason "([^"]*)"$/, function(keyword, reason) {
+    const step = findStep({
+      features: this.lastRun.jsonOutput,
+      stepPredicate: ['keyword', keyword]
+    })
+    expect(step.result.reason).to.eql(reason)
   })
 
   Then('the step {string} has the attachment', function(name, table) {

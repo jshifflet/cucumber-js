@@ -150,8 +150,8 @@ export default class JsonFormatter extends Formatter {
       data.match = { location: formatLocation(testStep.actionLocation) }
     }
     if (testStep.result) {
-      const { result: { exception, status } } = testStep
-      data.result = { status }
+      const { result: { exception, status, reason } } = testStep
+      data.result = { status, reason }
       if (testStep.result.duration) {
         data.result.duration = testStep.result.duration
       }

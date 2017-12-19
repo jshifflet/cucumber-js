@@ -15,7 +15,7 @@ async function run({
   world
 }) {
   beginTiming()
-  let error, result, parameters
+  let error, result, reason, parameters
 
   try {
     parameters = await Promise.all(
@@ -43,12 +43,17 @@ async function run({
         timeoutInMilliseconds
       })
       error = data.error
-      result = data.result
+
+      if (data.result && data.result.status) {
+        result = data.result.status
+        reason = data.result.reason
+      } else {
+        result = data.result
+      }
     } else {
       error = stepDefinition.getInvalidCodeLengthMessage(parameters)
     }
   }
-
   const testStepResult = { duration: endTiming() }
 
   if (result === 'skipped') {
@@ -61,7 +66,9 @@ async function run({
   } else {
     testStepResult.status = Status.PASSED
   }
-
+  if (reason) {
+    testStepResult.reason = reason
+  }
   return testStepResult
 }
 
