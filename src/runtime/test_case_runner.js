@@ -133,7 +133,9 @@ export default class TestCaseRunner {
 
   async aroundTestStep(runStepFn) {
     this.emit('test-step-started', { index: this.testStepIndex })
+
     const testStepResult = await runStepFn()
+
     if (testStepResult.duration) {
       this.result.duration += testStepResult.duration
     }
@@ -153,7 +155,7 @@ export default class TestCaseRunner {
   async run() {
     this.emitPrepared()
     this.emit('test-case-started', {})
-    await this.runHooks(this.beforeHookDefinitions, {
+    await this.runBeforeHooks(this.beforeHookDefinitions, {
       sourceLocation: this.testCaseSourceLocation,
       pickle: this.testCase.pickle,
     })
@@ -172,6 +174,22 @@ export default class TestCaseRunner {
       return { status: Status.SKIPPED }
     }
     return this.invokeStep(null, hookDefinition, hookParameter)
+  }
+
+  async runBeforeHooks(hookDefinitions, hookParameter) {
+    let skipBeforeHooks = false
+    await Promise.each(hookDefinitions, async hookDefinition => {
+      await this.aroundTestStep(async () => {
+        if (skipBeforeHooks) {
+          return { status: Status.SKIPPED }
+        }
+        const hookResult = await this.runHook(hookDefinition, hookParameter)
+        if (hookResult.status === Status.SKIPPED) {
+          skipBeforeHooks = true
+        }
+        return hookResult
+      })
+    })
   }
 
   async runHooks(hookDefinitions, hookParameter) {
