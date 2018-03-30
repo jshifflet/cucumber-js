@@ -133,9 +133,7 @@ export default class TestCaseRunner {
 
   async aroundTestStep(runStepFn) {
     this.emit('test-step-started', { index: this.testStepIndex })
-
     const testStepResult = await runStepFn()
-
     if (testStepResult.duration) {
       this.result.duration += testStepResult.duration
     }
